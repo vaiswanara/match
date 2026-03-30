@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ashtakuta Marriage Matching — Interactive Lesson</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --saffron: #E8650A;
+  --gold: #C9920A;
+  --deep-red: #7D1C1C;
+  --cream: #FDFAF4;
+  --light-gold: #FDF3DC;
+  --green: #1A6B35;
+  --blue: #1A3F8B;
+  --boy: #1A3F8B;
+  --girl: #7D1C1C;
+  --shadow: rgba(150,80,0,0.12);
+  --border: rgba(201,146,10,0.25);
+  --text: #1E1208;
+  --muted: #7A6040;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(160deg, #4A0A0A 0%, #7D1C1C 60%, #4A0A0A 100%);
+  padding: 36px 24px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,215,0,0.03) 40px, rgba(255,215,0,0.03) 41px);
+}
+header h1 {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(24px, 5vw, 40px);
+  color: #FFD700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 16px rgba(255,107,0,0.5);
+  position: relative;
+}
+header .sub {
+  color: rgba(255,215,0,0.65);
+  font-size: 14px;
+  font-weight: 300;
+  margin-top: 6px;
+  position: relative;
+}
+.gold-line {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #FFD700, #E8650A, #FFD700, transparent);
+}
+
+/* PROGRESS TABS */
+.progress {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 12px var(--shadow);
+  overflow-x: auto;
+}
+.tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 20px;
+  font-size: 13px; font-weight: 500;
+  color: #aaa;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tab .num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #eee; color: #aaa;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  transition: all 0.25s;
+}
+.tab.active { color: var(--saffron); border-bottom-color: var(--saffron); }
+.tab.active .num { background: var(--saffron); color: white; }
+.tab.done { color: var(--green); }
+.tab.done .num { background: var(--green); color: white; }
+
+/* LAYOUT */
+.wrap { max-width: 920px; margin: 0 auto; padding: 28px 20px; }
+
+/* CARD */
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 30px;
+  margin-bottom: 22px;
+  box-shadow: 0 3px 20px var(--shadow);
+  border: 1px solid var(--border);
+}
+.card-title {
+  font-family: 'Crimson Pro', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--deep-red);
+  border-bottom: 2px solid var(--light-gold);
+  padding-bottom: 12px; margin-bottom: 22px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.35s ease; }
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(14px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* INTRO */
+.intro-hero { text-align: center; padding: 10px 0 24px; }
+.intro-hero .symbol { font-size: 64px; display: block; margin-bottom: 10px; animation: breathe 3s ease-in-out infinite; }
+@keyframes breathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+.intro-hero h2 {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(20px,4vw,30px);
+  color: var(--deep-red); margin-bottom: 10px;
+}
+.intro-hero p { color: var(--muted); line-height: 1.75; max-width: 580px; margin: 0 auto; font-size: 15px; }
+
+.callout {
+  background: var(--light-gold);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 12px 12px 0;
+  padding: 14px 18px;
+  margin: 18px 0;
+  font-size: 14px; color: #5A3800; line-height: 1.65;
+}
+.callout strong { display: block; margin-bottom: 3px; color: var(--saffron); }
+
+.kuta-intro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 12px; margin: 20px 0;
+}
+.kuta-intro-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--light-gold);
+  display: flex; align-items: center; gap: 12px;
+  transition: transform 0.2s;
+}
+.kuta-intro-item:hover { transform: translateY(-2px); }
+.k-rank {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--deep-red); color: #FFD700;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.k-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.k-pts  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* NAKSHATRA GRID */
+.nak-section-label {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--saffron); margin-bottom: 10px;
+}
+.nak-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+.nak-btn {
+  padding: 10px 6px;
+  border: 2px solid #E8DFC8;
+  border-radius: 10px;
+  background: var(--light-gold);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s;
+  user-select: none;
+}
+.nak-btn:hover { border-color: var(--gold); background: #FFF0BE; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(200,140,0,0.2); }
+.nak-num  { display: block; font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+.nak-en   { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
+.nak-btn.sel-boy  { background: linear-gradient(135deg,#1A3F8B,#2c5cc5); color:white; border-color:#1A3F8B; box-shadow:0 4px 14px rgba(26,63,139,0.4); }
+.nak-btn.sel-boy .nak-num, .nak-btn.sel-boy .nak-en { color:white; }
+.nak-btn.sel-girl { background: linear-gradient(135deg,#7D1C1C,#b83232); color:white; border-color:#7D1C1C; box-shadow:0 4px 14px rgba(125,28,28,0.4); }
+.nak-btn.sel-girl .nak-num, .nak-btn.sel-girl .nak-en { color:white; }
+
+.sel-display {
+  display: flex; gap: 14px; flex-wrap: wrap; margin: 18px 0;
+}
+.sel-box {
+  flex:1; min-width:150px; padding:16px;
+  border-radius: 12px; text-align: center;
+}
+.sel-box.boy { background:#EBF0FF; border:2px solid var(--boy); }
+.sel-box.girl{ background:#FFEBEB; border:2px solid var(--girl); }
+.sel-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; opacity:.65; }
+.sel-val   { font-size:17px; font-weight:700; margin-top:5px; }
+.sel-box.boy  .sel-val { color:var(--boy); }
+.sel-box.girl .sel-val { color:var(--girl); }
+.sel-meta  { font-size:11px; color:var(--muted); margin-top:3px; }
+
+.pada-selector { display:flex; justify-content:center; align-items:center; gap:6px; margin-top:10px; }
+.pada-btn {
+  width:26px; height:26px; border-radius:6px; border:1px solid rgba(0,0,0,0.15);
+  background:white; color:#333; font-size:12px; font-weight:bold; cursor:pointer;
+  transition:all 0.2s;
+}
+.boy .pada-btn.active { background:var(--boy); color:white; border-color:var(--boy); }
+.girl .pada-btn.active { background:var(--girl); color:white; border-color:var(--girl); }
+
+.picking-banner {
+  text-align:center; padding:10px 16px;
+  background:#FDF3DC; border:1.5px dashed var(--gold);
+  border-radius:10px; margin-bottom:12px;
+  font-size:14px; font-weight:500; color:#5A3800;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 13px 26px;
+  border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--saffron), #c44d00);
+  color: white;
+  box-shadow: 0 4px 16px rgba(232,101,10,0.35);
+}
+.btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 20px rgba(232,101,10,0.45); }
+.btn-primary:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; transform:none !important; }
+.btn-ghost {
+  background: white; color: var(--saffron);
+  border: 2px solid var(--saffron);
+}
+.btn-ghost:hover { background:#FFF3E8; }
+.btn-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }
+
+/* KUTA CARDS */
+.kuta-list { display:flex; flex-direction:column; gap:14px; }
+
+.kuta-card {
+  border-radius: 14px;
+  border: 2px solid #E8DFC8;
+  background: white;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.kuta-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px var(--shadow); }
+
+.kuta-top {
+  display:flex; align-items:center; gap:14px;
+  padding: 16px 20px;
+}
+.kuta-rank-badge {
+  width:36px; height:36px; border-radius:50%;
+  background: var(--deep-red); color:#FFD700;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; flex-shrink:0;
+}
+.kuta-info { flex:1; }
+.kuta-title { font-size:16px; font-weight:700; color:var(--text); }
+.kuta-subtitle { font-size:12px; color:var(--muted); margin-top:1px; }
+
+.kuta-score-wrap { text-align:right; flex-shrink:0; }
+.kuta-score-num { font-size:30px; font-weight:700; line-height:1; }
+.kuta-score-max { font-size:12px; color:var(--muted); }
+.score-color-full   { color: var(--green); }
+.score-color-mid    { color: #D07010; }
+.score-color-zero   { color: var(--deep-red); }
+
+.kuta-bar-wrap { height:5px; background:#f0ece3; }
+.kuta-bar { height:100%; transition:width 0.8s ease; }
+.bar-full { background: linear-gradient(90deg,#1A6B35,#2ecc71); }
+.bar-mid  { background: linear-gradient(90deg,#D07010,#f39c12); }
+.bar-zero { background: linear-gradient(90deg,#7D1C1C,#e74c3c); }
+
+.kuta-expand {
+  display:none;
+  padding: 0 20px 20px;
+  border-top: 1px dashed #E8DFC8;
+}
+.kuta-card.open .kuta-expand { display:block; }
+.kuta-card.open { border-color: var(--gold); box-shadow:0 6px 24px rgba(201,146,10,0.25); }
+
+.step-box {
+  background: #FAFAF8;
+  border:1px solid #EDE5CF;
+  border-radius:12px;
+  padding:16px;
+  margin-top:14px;
+}
+.step-box h4 { font-size:13px; font-weight:700; color:var(--saffron); text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px; }
+
+.step-row {
+  display:flex; gap:10px; align-items:flex-start;
+  margin-bottom:10px;
+}
+.step-num {
+  width:24px; height:24px; border-radius:50%;
+  background:var(--deep-red); color:#FFD700;
+  font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:1px;
+}
+.step-text { font-size:13px; line-height:1.6; color:#333; }
+.step-text strong { color:var(--text); }
+
+.compare-row {
+  display:flex; gap:10px; flex-wrap:wrap; margin:12px 0;
+}
+.compare-box {
+  flex:1; min-width:120px; padding:12px;
+  border-radius:10px; text-align:center;
+}
+.compare-box.boy-c { background:#EBF0FF; border:1.5px solid var(--boy); }
+.compare-box.girl-c{ background:#FFEBEB; border:1.5px solid var(--girl); }
+.c-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; opacity:.65; }
+.c-val   { font-size:15px; font-weight:700; margin-top:4px; }
+.compare-box.boy-c  .c-val { color:var(--boy); }
+.compare-box.girl-c .c-val { color:var(--girl); }
+
+.result-pill {
+  display:inline-block; padding:6px 16px;
+  border-radius:20px; font-size:13px; font-weight:700;
+  margin-top:10px;
+}
+.pill-full { background:#EAFAF1; color:var(--green); border:1.5px solid #27ae60; }
+.pill-mid  { background:#FEF9E7; color:#c17000; border:1.5px solid #f39c12; }
+.pill-zero { background:#FDEDEC; color:var(--deep-red); border:1.5px solid #e74c3c; }
+
+.toggle-hint { font-size:12px; color:var(--muted); padding:4px 20px 10px; display:flex; align-items:center; justify-content:flex-end; gap:4px; }
+.arrow-icon { transition:transform 0.3s; display:inline-block; }
+.kuta-card.open .arrow-icon { transform:rotate(180deg); }
+
+/* SCORE METER */
+.meter-card {
+  background: white; border-radius:18px; padding:30px;
+  box-shadow:0 4px 24px var(--shadow); border:2px solid var(--gold);
+  text-align:center; margin-bottom:22px;
+}
+.meter-label { font-size:13px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px; }
+.meter-big { font-family:'Crimson Pro',serif; font-size:72px; font-weight:700; line-height:1; }
+.meter-denom { font-size:18px; color:var(--muted); }
+.meter-track {
+  width:100%; height:26px; background:#F0EAD8;
+  border-radius:13px; overflow:hidden; margin:18px 0 6px;
+}
+.meter-fill {
+  height:100%; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  color:white; font-weight:700; font-size:13px;
+  transition:width 1.4s cubic-bezier(.34,1.56,.64,1);
+}
+.meter-ticks {
+  display:flex; justify-content:space-between;
+  font-size:11px; color:var(--muted);
+}
+.verdict {
+  padding:14px 22px; border-radius:12px;
+  font-size:16px; font-weight:600; margin-top:16px;
+}
+.v-great { background:#EAFAF1; color:var(--green); border:2px solid #27ae60; }
+.v-ok    { background:#FEF9E7; color:#c17000; border:2px solid #f39c12; }
+.v-low   { background:#FDEDEC; color:var(--deep-red); border:2px solid #e74c3c; }
+
+/* SUMMARY TABLE */
+.sum-table { width:100%; border-collapse:collapse; font-size:14px; margin-top:14px; }
+.sum-table th { background:var(--deep-red); color:#FFD700; padding:11px 14px; text-align:center; }
+.sum-table th:first-child { text-align:left; }
+.sum-table td { padding:10px 14px; border-bottom:1px solid #F0E8D0; text-align:center; }
+.sum-table td:first-child { text-align:left; font-weight:600; }
+.sum-table tr:nth-child(even) td { background:var(--light-gold); }
+.sc { font-weight:700; font-size:15px; }
+.sc-g { color:var(--green); }
+.sc-m { color:#D07010; }
+.sc-r { color:var(--deep-red); }
+
+.badge { display:inline-block; padding:3px 10px; border-radius:16px; font-size:12px; font-weight:600; }
+.badge-b { background:#EBF0FF; color:var(--boy); }
+.badge-g { background:#FFEBEB; color:var(--girl); }
+
+/* INFO TABLE */
+.info-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:12px; }
+.info-table th { background:var(--deep-red); color:#FFD700; padding:10px 12px; text-align:left; }
+.info-table td { padding:9px 12px; border-bottom:1px solid #F0E8D0; }
+.info-table tr:nth-child(even) td { background:var(--light-gold); }
+
+@media(max-width:600px) {
+  .card { padding:18px; }
+  .nak-grid { grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); }
+  .tab .label { display:none; }
+  .kuta-top { padding:12px 14px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Ashtakuta Marriage Matching</h1>
+  <p class="sub">An Interactive Step-by-Step Lesson for Students</p>
+</header>
+<div class="gold-line"></div>
+
+<!-- TABS -->
+<div class="progress">
+  <div class="tab active" id="tab0"><div class="num">1</div><span class="label">Introduction</span></div>
+  <div class="tab" id="tab1"><div class="num">2</div><span class="label">Pick Nakshatras</span></div>
+  <div class="tab" id="tab2"><div class="num">3</div><span class="label">8 Kutas</span></div>
+  <div class="tab" id="tab3"><div class="num">4</div><span class="label">Final Score</span></div>
+</div>
+
+<div class="wrap">
+
+<!-- ══════════════════ SCREEN 0 — INTRO ══════════════════ -->
+<div class="screen active" id="s0">
+  <div class="card">
+    <div class="intro-hero">
+      <span class="symbol">🕉️</span>
+      <h2>What is Ashtakuta Matching?</h2>
+      <p>In Hindu astrology, before a marriage is arranged, the horoscopes of the bride and groom are compared using <strong>8 compatibility factors</strong> called <em>Kutas</em>. Together they add up to a maximum of <strong>36 points</strong>.</p>
+    </div>
+
+    <div class="callout">
+      <strong>📌 General Rule</strong>
+      A score of <strong>18 or more out of 36</strong> is considered acceptable. Scores above 27 are excellent. Below 18 is generally not recommended by traditional astrologers.
+    </div>
+
+    <h3 style="font-family:'Crimson Pro',serif; color:var(--deep-red); margin-bottom:14px; font-size:20px;">The 8 Kutas — from most to least important</h3>
+    <div class="kuta-intro-grid">
+      <div class="kuta-intro-item"><div class="k-rank">1</div><div><div class="k-name">Nadi Kuta</div><div class="k-pts">Max 8 pts · Health &amp; Progeny</div></div></div>
+      <div class="kuta-intro-item"><div class="k-rank">2</div><div><div class="k-name">Bhakoot Kuta</div><div class="k-pts">Max 7 pts · Wealth &amp; Love</div></div></div>
+      <div class="kuta-intro-item"><div class="k-rank">3</div><div><div class="k-name">Gana Kuta</div><div class="k-pts">Max 6 pts · Nature &amp; Temperament</div></div></div>
+      <div class="kuta-intro-item"><div class="k-rank">4</div><div><div class="k-name">Graha Maitri</div><div class="k-pts">Max 5 pts · Mental Compatibility</div></div></div>
+      <div class="kuta-intro-item"><div class="k-rank">5</div><div><div class="k-name">Yoni Kuta</div><div class="k-pts">Max 4 pts · Physical Compatibility</div></div></div>
+      <div class="kuta-intro-item"><div class="k-rank">6</div><div><div class="k-name">Tara Kuta</div><div class="k-pts">Max 3 pts · Destiny &amp; Health</div></div></div>
+      <div class="kuta-intro-item"><div class="k-rank">7</div><div><div class="k-name">Vashya Kuta</div><div class="k-pts">Max 2 pts · Influence &amp; Control</div></div></div>
+      <div class="kuta-intro-item"><div class="k-rank">8</div><div><div class="k-name">Varna Kuta</div><div class="k-pts">Max 1 pt · Spiritual Level</div></div></div>
+    </div>
+
+    <div class="callout" style="margin-top:4px;">
+      <strong>🎓 How this lesson works</strong>
+      Step 1 — Pick the Groom's and Bride's birth Nakshatra. &nbsp;Step 2 — See each of the 8 Kutas calculated step-by-step. &nbsp;Step 3 — View the final score and verdict.
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo(1)">Start Lesson &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN 1 — NAKSHATRA ══════════════════ -->
+<div class="screen" id="s1">
+  <div class="card">
+    <div class="card-title">⭐ Step 1 — Choose Birth Nakshatras</div>
+
+    <div class="callout">
+      <strong>What is a Nakshatra?</strong>
+      The Chandra travels through 27 star constellations (Nakshatras) each month. The Nakshatra the Chandra occupies at the moment of your birth is your <em>Janma Nakshatra</em> (birth star). This is the foundation of all Ashtakuta calculations.
+    </div>
+
+    <div class="picking-banner" id="pickBanner">
+      👆 Click a Nakshatra below to set the <strong>Groom's</strong> birth star
+    </div>
+
+    <div class="sel-display">
+      <div class="sel-box boy">
+        <div class="sel-label">👦 Groom</div>
+        <div class="sel-val" id="boyDisp">Not selected</div>
+        <div class="sel-meta" id="boyMeta">—</div>
+        <div class="pada-selector" id="boyPadaDiv" style="display:none;">
+          <span style="font-size:12px; opacity:0.8;">Pada:</span>
+          <button class="pada-btn" id="bp-1" onclick="setPada('boy',1)">1</button>
+          <button class="pada-btn" id="bp-2" onclick="setPada('boy',2)">2</button>
+          <button class="pada-btn" id="bp-3" onclick="setPada('boy',3)">3</button>
+          <button class="pada-btn" id="bp-4" onclick="setPada('boy',4)">4</button>
+        </div>
+      </div>
+      <div class="sel-box girl">
+        <div class="sel-label">👧 Bride</div>
+        <div class="sel-val" id="girlDisp">Not selected</div>
+        <div class="sel-meta" id="girlMeta">—</div>
+        <div class="pada-selector" id="girlPadaDiv" style="display:none;">
+          <span style="font-size:12px; opacity:0.8;">Pada:</span>
+          <button class="pada-btn" id="gp-1" onclick="setPada('girl',1)">1</button>
+          <button class="pada-btn" id="gp-2" onclick="setPada('girl',2)">2</button>
+          <button class="pada-btn" id="gp-3" onclick="setPada('girl',3)">3</button>
+          <button class="pada-btn" id="gp-4" onclick="setPada('girl',4)">4</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nak-section-label">27 Nakshatras — click to select</div>
+    <div class="nak-grid" id="nakGrid"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(0)">&larr; Back</button>
+      <button class="btn btn-primary" id="btnCalc" onclick="goTo(2)" disabled>Calculate Kutas &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN 2 — KUTAS ══════════════════ -->
+<div class="screen" id="s2">
+  <div class="card" style="padding:18px 24px; margin-bottom:18px;">
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <div class="sel-box boy" style="margin:0; flex:1; min-width:130px; padding:12px;">
+        <div class="sel-label">👦 Groom</div>
+        <div class="sel-val" id="r-boy" style="font-size:15px;"></div>
+        <div class="sel-meta" id="r-boy-m"></div>
+      </div>
+      <div class="sel-box girl" style="margin:0; flex:1; min-width:130px; padding:12px;">
+        <div class="sel-label">👧 Bride</div>
+        <div class="sel-val" id="r-girl" style="font-size:15px;"></div>
+        <div class="sel-meta" id="r-girl-m"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Step 2 — The 8 Kutas
+      <span style="margin-left:auto; font-size:13px; color:var(--muted); font-weight:400;">👆 Click each Kuta to see how it is calculated</span>
+    </div>
+    <div class="kuta-list" id="kutaList"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goTo(1)">&larr; Change Stars</button>
+    <button class="btn btn-primary" onclick="goTo(3)">View Final Score &rarr;</button>
+  </div>
+</div>
+
+<!-- ══════════════════ SCREEN 3 — RESULT ══════════════════ -->
+<div class="screen" id="s3">
+  <div class="meter-card">
+    <div class="meter-label">Total Compatibility Score</div>
+    <div class="meter-big" id="bigScore">0</div>
+    <div class="meter-denom">out of 36</div>
+    <div class="meter-track">
+      <div class="meter-fill" id="mFill" style="width:0%"></div>
+    </div>
+    <div class="meter-ticks">
+      <span>0</span><span>9</span><span>18 (min. acceptable)</span><span>27 (good)</span><span>36</span>
+    </div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Full Score Summary</div>
+    <table class="sum-table">
+      <thead><tr><th>Kuta</th><th>Groom</th><th>Bride</th><th>Max</th><th>Score</th></tr></thead>
+      <tbody id="sumBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📚 What Each Kuta Measures</div>
+    <table class="info-table">
+      <thead><tr><th>Kuta</th><th>What it tests</th><th>Max Pts</th></tr></thead>
+      <tbody>
+        <tr><td>Nadi Kuta</td><td>Health, progeny &amp; genetic compatibility</td><td>8</td></tr>
+        <tr><td>Bhakoot Kuta</td><td>Financial prosperity &amp; emotional bond</td><td>7</td></tr>
+        <tr><td>Gana Kuta</td><td>Temperament — divine / human / demon nature</td><td>6</td></tr>
+        <tr><td>Graha Maitri</td><td>Mental friendship &amp; intellectual compatibility</td><td>5</td></tr>
+        <tr><td>Yoni Kuta</td><td>Physical harmony &amp; mutual attraction</td><td>4</td></tr>
+        <tr><td>Tara Kuta</td><td>Destiny, longevity &amp; mutual wellbeing</td><td>3</td></tr>
+        <tr><td>Vashya Kuta</td><td>Mutual influence &amp; dominance balance</td><td>2</td></tr>
+        <tr><td>Varna Kuta</td><td>Spiritual &amp; ego compatibility</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goTo(1)">&larr; Try Different Stars</button>
+    <button class="btn btn-primary" onclick="goTo(0)">🏠 Home</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ══════════════════════════════════════ DATA
+const NAK = [
+  {n:1,  name:'Ashwini',         gana:'Deva',    nadi:'Aadi',  yoni:'Horse',    rashi:1,  lord:'Kuja'},
+  {n:2,  name:'Bharani',         gana:'Manushya',nadi:'Madhya',yoni:'Elephant', rashi:1,  lord:'Kuja'},
+  {n:3,  name:'Krittika',        gana:'Rakshasa',nadi:'Antya', yoni:'Sheep',    rashi:2,  lord:'Sukra'},
+  {n:4,  name:'Rohini',          gana:'Manushya',nadi:'Aadi',  yoni:'Serpent',  rashi:2,  lord:'Sukra'},
+  {n:5,  name:'Mrigashira',      gana:'Deva',    nadi:'Madhya',yoni:'Serpent',  rashi:3,  lord:'Budha'},
+  {n:6,  name:'Arudra',          gana:'Manushya',nadi:'Antya', yoni:'Dog',      rashi:3,  lord:'Budha'},
+  {n:7,  name:'Punarvasu',       gana:'Deva',    nadi:'Aadi',  yoni:'Cat',      rashi:4,  lord:'Chandra'},
+  {n:8,  name:'Pushya',          gana:'Deva',    nadi:'Madhya',yoni:'Sheep',    rashi:4,  lord:'Chandra'},
+  {n:9,  name:'Ashlesha',        gana:'Rakshasa',nadi:'Antya', yoni:'Cat',      rashi:4,  lord:'Chandra'},
+  {n:10, name:'Magha',           gana:'Rakshasa',nadi:'Aadi',  yoni:'Rat',      rashi:5,  lord:'Surya'},
+  {n:11, name:'Purva Phalguni',  gana:'Manushya',nadi:'Madhya',yoni:'Rat',      rashi:5,  lord:'Surya'},
+  {n:12, name:'Uttara Phalguni', gana:'Manushya',nadi:'Antya', yoni:'Cow',      rashi:6,  lord:'Budha'},
+  {n:13, name:'Hasta',           gana:'Deva',    nadi:'Aadi',  yoni:'Buffalo',  rashi:6,  lord:'Budha'},
+  {n:14, name:'Chitra',          gana:'Rakshasa',nadi:'Madhya',yoni:'Tiger',    rashi:7,  lord:'Sukra'},
+  {n:15, name:'Swati',           gana:'Deva',    nadi:'Antya', yoni:'Buffalo',  rashi:7,  lord:'Sukra'},
+  {n:16, name:'Vishakha',        gana:'Rakshasa',nadi:'Aadi',  yoni:'Tiger',    rashi:8,  lord:'Kuja'},
+  {n:17, name:'Anuradha',        gana:'Deva',    nadi:'Madhya',yoni:'Deer',     rashi:8,  lord:'Kuja'},
+  {n:18, name:'Jyeshtha',        gana:'Rakshasa',nadi:'Antya', yoni:'Deer',     rashi:8,  lord:'Kuja'},
+  {n:19, name:'Mula',            gana:'Rakshasa',nadi:'Aadi',  yoni:'Dog',      rashi:9,  lord:'Guru'},
+  {n:20, name:'Purva Ashadha',   gana:'Manushya',nadi:'Madhya',yoni:'Monkey',   rashi:9,  lord:'Guru'},
+  {n:21, name:'Uttara Ashadha',  gana:'Manushya',nadi:'Antya', yoni:'Mongoose', rashi:10, lord:'Shani'},
+  {n:22, name:'Shravana',        gana:'Deva',    nadi:'Aadi',  yoni:'Monkey',   rashi:10, lord:'Shani'},
+  {n:23, name:'Dhanishta',       gana:'Rakshasa',nadi:'Madhya',yoni:'Lion',     rashi:11, lord:'Shani'},
+  {n:24, name:'Shatabhisha',     gana:'Rakshasa',nadi:'Antya', yoni:'Horse',    rashi:11, lord:'Shani'},
+  {n:25, name:'Purva Bhadra',    gana:'Manushya',nadi:'Aadi',  yoni:'Lion',     rashi:12, lord:'Guru'},
+  {n:26, name:'Uttara Bhadra',   gana:'Manushya',nadi:'Madhya',yoni:'Cow',      rashi:12, lord:'Guru'},
+  {n:27, name:'Revati',          gana:'Deva',    nadi:'Antya', yoni:'Elephant', rashi:12, lord:'Guru'},
+];
+
+const PLANET_REL = {
+  Surya:     {Chandra:1,Kuja:1,Guru:1,Budha:0,Sukra:-1,Shani:-1},
+  Chandra:    {Surya:1,Budha:1,Kuja:0,Guru:0,Sukra:0,Shani:0},
+  Kuja:    {Surya:1,Chandra:1,Guru:1,Sukra:0,Shani:0,Budha:-1},
+  Budha: {Surya:0,Sukra:1,Kuja:0,Guru:0,Shani:0,Chandra:-1},
+  Guru: {Surya:1,Chandra:1,Kuja:1,Shani:0,Budha:-1,Sukra:-1},
+  Sukra:   {Budha:1,Shani:1,Kuja:0,Guru:0,Surya:-1,Chandra:-1},
+  Shani:  {Budha:1,Sukra:1,Guru:0,Surya:-1,Chandra:-1,Kuja:-1},
+};
+
+const YONI_PAIR  = {Horse:'Horse',Elephant:'Elephant',Sheep:'Sheep',Serpent:'Serpent',Dog:'Dog',Cat:'Cat',Rat:'Rat',Cow:'Cow',Buffalo:'Buffalo',Tiger:'Tiger',Deer:'Deer',Monkey:'Monkey',Mongoose:'Lion',Lion:'Mongoose'};
+const YONI_ENEMY = {Horse:'Buffalo',Buffalo:'Horse',Dog:'Deer',Deer:'Dog',Rat:'Cat',Cat:'Rat',Cow:'Tiger',Tiger:'Cow',Elephant:'Lion',Lion:'Elephant',Sheep:'Mongoose',Mongoose:'Sheep',Monkey:'Serpent',Serpent:'Monkey'};
+const RASHI_NAME = ['','Mesha','Vrushaba','Mithuna','Karka','Simha','Kanya','Tula','Vruschika','Dhanus','Makara','Kumbha','Meena'];
+const VARNA_MAP  = {1:'Kshatriya',2:'Vaishya',3:'Shudra',4:'Brahmin',5:'Kshatriya',6:'Vaishya',7:'Shudra',8:'Brahmin',9:'Kshatriya',10:'Vaishya',11:'Shudra',12:'Brahmin'};
+const VASHYA_MAP = {1:'Chatushpada',2:'Chatushpada',3:'Manava',4:'Jalachara',5:'Vanachara',6:'Manava',7:'Manava',8:'Keeta',9:'Manava',10:'Chatushpada',11:'Manava',12:'Jalachara'};
+const TARA_NAME  = ['','Janma','Sampat','Vipat','Kshema','Pratyari','Sadhaka','Vadha','Mitra','Parama Mitra'];
+const TARA_GOOD  = new Set([2,4,6,8,9]);
+const VARNA_RANK = {Brahmin:4,Kshatriya:3,Vaishya:2,Shudra:1};
+const RASHI_LORD = [null,'Kuja','Sukra','Budha','Chandra','Surya','Budha','Sukra','Kuja','Guru','Shani','Shani','Guru'];
+
+function getRashi(nakNum, pada) {
+  return Math.ceil(((nakNum - 1) * 4 + pada) / 9);
+}
+
+// ══════════════════════════════════════ STATE
+let selBoy=null, selGirl=null, picking='boy', results=[], total=0;
+
+// ══════════════════════════════════════ BUILD GRID
+function buildGrid(){
+  const g = document.getElementById('nakGrid');
+  NAK.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'nak-btn'; d.id = 'nb-'+n.n;
+    d.innerHTML = `<span class="nak-num">${n.n}.</span><span class="nak-en">${n.name}</span>`;
+    d.onclick = () => pick(n);
+    g.appendChild(d);
+  });
+}
+
+function pick(n){
+  let selected = { ...n, pada: 1 };
+  if(picking==='boy'){
+    selBoy = selected;
+    document.getElementById('boyDisp').textContent = n.name;
+    document.getElementById('boyMeta').textContent = `#${n.n} · Pada 1 · ${n.nadi} Nadi`;
+    document.getElementById('boyPadaDiv').style.display = 'flex';
+    setPadaUI('boy', 1);
+    picking='girl';
+    document.getElementById('pickBanner').innerHTML = '👆 Now click a Nakshatra for the <strong>Bride</strong>';
+  } else {
+    selGirl = selected;
+    document.getElementById('girlDisp').textContent = n.name;
+    document.getElementById('girlMeta').textContent = `#${n.n} · Pada 1 · ${n.nadi} Nadi`;
+    document.getElementById('girlPadaDiv').style.display = 'flex';
+    setPadaUI('girl', 1);
+    picking='boy';
+    document.getElementById('pickBanner').innerHTML = '✅ Both selected! Click any star again to change it.';
+  }
+  NAK.forEach(x => { const el=document.getElementById('nb-'+x.n); el.classList.remove('sel-boy','sel-girl'); });
+  if(selBoy)  document.getElementById('nb-'+selBoy.n).classList.add('sel-boy');
+  if(selGirl) document.getElementById('nb-'+selGirl.n).classList.add('sel-girl');
+  document.getElementById('btnCalc').disabled = !(selBoy && selGirl);
+}
+
+function setPada(person, p) {
+  if (person === 'boy' && selBoy) { selBoy.pada = p; document.getElementById('boyMeta').textContent = `#${selBoy.n} · Pada ${p} · ${selBoy.nadi} Nadi`; setPadaUI('boy', p); }
+  else if (person === 'girl' && selGirl) { selGirl.pada = p; document.getElementById('girlMeta').textContent = `#${selGirl.n} · Pada ${p} · ${selGirl.nadi} Nadi`; setPadaUI('girl', p); }
+}
+
+function setPadaUI(person, p) {
+  for(let i=1; i<=4; i++) {
+    let btn = document.getElementById((person==='boy'?'bp-':'gp-') + i);
+    if(i===p) btn.classList.add('active');
+    else btn.classList.remove('active');
+  }
+}
+
+// ══════════════════════════════════════ KUTA CALCULATIONS
+function calcNadi(b,g){
+  const same = b.nadi===g.nadi;
+  const score = same?0:8;
+  return {name:'Nadi Kuta',what:'Health & Progeny',max:8,score,bv:b.nadi+' Nadi',gv:g.nadi+' Nadi',
+    pillCls:score===8?'pill-full':'pill-zero',
+    pillTxt:score===8?'✅ Full Score — 8/8':'❌ Nadi Dosha — 0/8',
+    steps:[
+      {t:'What is Nadi?',body:`Each Nakshatra belongs to one of 3 Nadis (body constitution types):<br>
+        <b>Aadi Nadi:</b> Ashwini, Arudra, Punarvasu, Purva Phalguni, Uttara Phalguni, Hasta, Vishakha, Shravana, Uttara Bhadra<br>
+        <b>Madhya Nadi:</b> Bharani, Mrigashira, Pushya, Magha, Chitra, Anuradha, Purva Ashadha, Dhanishta, Purva Bhadra<br>
+        <b>Antya Nadi:</b> Krittika, Rohini, Ashlesha, Swati, Jyeshtha, Mula, Uttara Ashadha, Shatabhisha, Revati<br>
+        Nadi is linked to health, hereditary traits, and progeny compatibility.`},
+      {t:'Identify each Nadi',body:`Groom → <b>${b.name} (#${b.n})</b> → Nadi = <b>${b.nadi}</b><br>
+        Bride → <b>${g.name} (#${g.n})</b> → Nadi = <b>${g.nadi}</b>`},
+      {t:'Apply the scoring rule',body:`Rule: If both Nadis are the <b>same</b> → 0 points (Nadi Dosha, very serious defect).<br>
+        If the Nadis are <b>different</b> → full 8 points.`},
+      {t:'Result',body:same
+        ? `Both are <b>${b.nadi} Nadi</b> → <b>Nadi Dosha</b> — score = <b>0 / 8</b>.`
+        : `${b.nadi} ≠ ${g.nadi} → Different Nadis — score = <b>8 / 8</b>.`}
+    ]};
+}
+
+function calcBhakoot(b,g){
+  const br=getRashi(b.n, b.pada), gr=getRashi(g.n, g.pada);
+  if(br===gr){
+    return {name:'Bhakoot Kuta',what:'Wealth & Love',max:7,score:7,bv:RASHI_NAME[br],gv:RASHI_NAME[gr],
+      pillCls:'pill-full',pillTxt:'✅ Full Score — 7/7',
+      steps:[
+        {t:'What is Bhakoot?',body:'Bhakoot compares the Rashi (Chandra sign) of the groom and bride. It tests financial growth and emotional harmony.'},
+        {t:'Find each Rashi',body:`Groom → <b>${b.name}</b> → Rashi: <b>${RASHI_NAME[br]}</b><br>Bride → <b>${g.name}</b> → Rashi: <b>${RASHI_NAME[gr]}</b>`},
+        {t:'Result',body:'Same Rashi — full 7 points awarded!'}
+      ]};
+  }
+  const fwd = ((gr-br+12)%12)||12;
+  const bwd = ((br-gr+12)%12)||12;
+  const badPairs=[[2,12],[5,9],[6,8]];
+  const isBad = badPairs.some(([a,b2])=>(fwd===a&&bwd===b2)||(fwd===b2&&bwd===a));
+  const score = isBad?0:7;
+  return {name:'Bhakoot Kuta',what:'Wealth & Love',max:7,score,bv:RASHI_NAME[br],gv:RASHI_NAME[gr],
+    pillCls:score===7?'pill-full':'pill-zero',
+    pillTxt:score===7?'✅ Full Score — 7/7':'❌ Bhakoot Dosha — 0/7',
+    steps:[
+      {t:'What is Bhakoot?',body:'Bhakoot compares the <b>Rashi (Chandra sign)</b> positions. Certain Rashi pair combinations are considered harmful.'},
+      {t:'Find each Rashi',body:`Groom → <b>${b.name}</b> → Rashi: <b>${RASHI_NAME[br]} (${br})</b><br>Bride → <b>${g.name}</b> → Rashi: <b>${RASHI_NAME[gr]} (${gr})</b>`},
+      {t:'Count the distance',body:`Positions counted forward from Groom → Bride: <b>${fwd}</b><br>Positions counted forward from Bride → Groom: <b>${bwd}</b><br>The pair is written as <b>${fwd}–${bwd}</b>.`},
+      {t:'Check against bad pairs',body:`The problematic combinations are: <b>2–12, 5–9, 6–8</b> (and their reverses).<br>These cause financial hardship and separation, according to tradition.`},
+      {t:'Result',body:isBad
+        ? `The pair <b>${fwd}–${bwd}</b> is a problematic combination → <b>Bhakoot Dosha — score = 0 / 7</b>.`
+        : `The pair <b>${fwd}–${bwd}</b> is NOT problematic → score = <b>7 / 7</b>.`}
+    ]};
+}
+
+function calcGana(b,g){
+  const bg=b.gana, gg=g.gana;
+  let score, ruleResult;
+  if(bg===gg){score=6; ruleResult=`Same Gana (<b>${bg}</b>) — full 6 points!`;}
+  else if(bg==='Deva'&&gg==='Manushya'){score=5; ruleResult='Deva Groom + Manushya Bride — mostly compatible (5 pts).';}
+  else if(bg==='Manushya'&&gg==='Deva'){score=4; ruleResult='Manushya Groom + Deva Bride — partially compatible (4 pts).';}
+  else {score=0; ruleResult='Rakshasa involved in a mismatched combination — <b>Gana Dosha</b>. Score = 0.';}
+  return {name:'Gana Kuta',what:'Nature & Temperament',max:6,score,bv:bg+' Gana',gv:gg+' Gana',
+    pillCls:score>=5?'pill-full':(score>=3?'pill-mid':'pill-zero'),
+    pillTxt:`Score: ${score} / 6`,
+    steps:[
+      {t:'What are the 3 Ganas?',body:`<b>Deva (Divine):</b> calm, spiritual, forgiving. Nakshatras: Ashwini, Mrigashira, Punarvasu, Pushya, Hasta, Swati, Anuradha, Shravana, Revati.<br>
+        <b>Manushya (Human):</b> balanced and practical. Nakshatras: Bharani, Rohini, Arudra, Purva Phalguni, Uttara Phalguni, Purva Ashadha, Uttara Ashadha, Purva Bhadra, Uttara Bhadra.<br>
+        <b>Rakshasa (Demon):</b> intense, strong-willed. Nakshatras: Krittika, Ashlesha, Magha, Chitra, Vishakha, Jyeshtha, Mula, Dhanishta, Shatabhisha.`},
+      {t:'Identify each Gana',body:`Groom → <b>${b.name}</b> → <b>${bg} Gana</b><br>Bride → <b>${g.name}</b> → <b>${gg} Gana</b>`},
+      {t:'Scoring table',body:`Same Gana → <b>6</b> | Deva + Manushya → <b>5</b> | Manushya + Deva → <b>4</b> | Any mismatched Rakshasa combo → <b>0</b>`},
+      {t:'Result',body:ruleResult}
+    ]};
+}
+
+function calcGrahaMaitri(b,g){
+  const br = getRashi(b.n, b.pada), gr = getRashi(g.n, g.pada);
+  const bl = RASHI_LORD[br], gl = RASHI_LORD[gr];
+  const r1=(bl===gl)?1:(PLANET_REL[bl]?.[gl]??0);
+  const r2=(bl===gl)?1:(PLANET_REL[gl]?.[bl]??0);
+  let score;
+  if(bl===gl||( r1===1&&r2===1)) score=5;
+  else if((r1===1&&r2===0)||(r1===0&&r2===1)) score=4;
+  else if(r1===0&&r2===0) score=3;
+  else if((r1===1&&r2===-1)||(r1===-1&&r2===1)) score=1;
+  else if((r1===0&&r2===-1)||(r1===-1&&r2===0)) score=0.5;
+  else score=0;
+  const rw=v=>v===1?'Friend':v===0?'Neutral':'Enemy';
+  return {name:'Graha Maitri',what:'Mental Compatibility',max:5,score,bv:'Lord: '+bl,gv:'Lord: '+gl,
+    pillCls:score>=4?'pill-full':(score>=2?'pill-mid':'pill-zero'),
+    pillTxt:`Score: ${score} / 5`,
+    steps:[
+      {t:'What is Graha Maitri?',body:`Each Rashi (Chandra sign) has a ruling planet called its <b>lord</b>. This Kuta checks whether the two lords are friendly, neutral, or hostile to each other, testing mental and intellectual harmony.`},
+      {t:'Find the Rashi lords',body:`Groom → Rashi <b>${RASHI_NAME[br]}</b> → Lord = <b>${bl}</b><br>Bride → Rashi <b>${RASHI_NAME[gr]}</b> → Lord = <b>${gl}</b>`},
+      {t:'Check the relationship',body:`${bl} views ${gl}: <b>${rw(r1)}</b><br>${gl} views ${bl}: <b>${rw(r2)}</b><br><br>
+        Scoring: Both Friends = 5 | One Friend + One Neutral = 4 | Both Neutral = 3 | Friend + Enemy = 1 | Neutral + Enemy = 0.5 | Both Enemies = 0`},
+      {t:'Result',body:`Relationship is <b>${rw(r1)} / ${rw(r2)}</b> → Score = <b>${score} / 5</b>`}
+    ]};
+}
+
+function calcYoni(b,g){
+  const by=b.yoni, gy=g.yoni;
+  let score, ruleResult;
+  if(by===gy){score=4; ruleResult=`Same animal (<b>${by}</b>) — perfect match! Score = 4.`;}
+  else if(YONI_PAIR[by]===gy||YONI_PAIR[gy]===by){score=3; ruleResult=`${by} & ${gy} are <b>friendly animals</b> — score = 3.`;}
+  else if(YONI_ENEMY[by]===gy){score=0; ruleResult=`${by} & ${gy} are <b>enemy animals</b> — Yoni Dosha, score = 0.`;}
+  else {score=2; ruleResult=`Neutral pairing — score = 2.`;}
+  return {name:'Yoni Kuta',what:'Physical Compatibility',max:4,score,bv:by+' Yoni',gv:gy+' Yoni',
+    pillCls:score>=3?'pill-full':(score>=2?'pill-mid':'pill-zero'),
+    pillTxt:`Score: ${score} / 4`,
+    steps:[
+      {t:'What is Yoni?',body:`Each Nakshatra is assigned an animal symbol. This Kuta assesses physical attraction and intimate compatibility. The 14 Yonis and their Nakshatras are:<br>
+        <div style="font-size:12.5px; margin-top:6px; line-height:1.6; color:var(--muted);">
+        <b>Horse:</b> Ashwini, Shatabhisha &nbsp;|&nbsp; <b>Elephant:</b> Bharani, Revati<br>
+        <b>Sheep:</b> Krittika, Pushya &nbsp;|&nbsp; <b>Serpent:</b> Rohini, Mrigashira<br>
+        <b>Dog:</b> Arudra, Mula &nbsp;|&nbsp; <b>Cat:</b> Punarvasu, Ashlesha<br>
+        <b>Rat:</b> Magha, Purva Phalguni &nbsp;|&nbsp; <b>Cow:</b> Uttara Phalguni, Uttara Bhadra<br>
+        <b>Buffalo:</b> Hasta, Swati &nbsp;|&nbsp; <b>Tiger:</b> Chitra, Vishakha<br>
+        <b>Deer:</b> Anuradha, Jyeshtha &nbsp;|&nbsp; <b>Monkey:</b> Purva Ashadha, Shravana<br>
+        <b>Mongoose:</b> Uttara Ashadha &nbsp;|&nbsp; <b>Lion:</b> Dhanishta, Purva Bhadra
+        </div>`},
+      {t:'Find each Yoni',body:`Groom → <b>${b.name}</b> → Yoni = <b>${by}</b><br>Bride → <b>${g.name}</b> → Yoni = <b>${gy}</b>`},
+      {t:'Scoring rule',body:`Same animal = <b>4</b> | Friendly animals = <b>3</b> | Neutral = <b>2</b> | Enemy animals = <b>0</b>`},
+      {t:'Result',body:ruleResult}
+    ]};
+}
+
+function calcTara(b,g){
+  const fwd=((g.n-b.n+27)%27)+1;
+  const bk =((b.n-g.n+27)%27)+1;
+  const tB=((fwd-1)%9)+1, tG=((bk-1)%9)+1;
+  const bg=TARA_GOOD.has(tB), gg2=TARA_GOOD.has(tG);
+  const score=bg&&gg2?3:(bg||gg2?1.5:0);
+  return {name:'Tara Kuta',what:'Destiny & Wellbeing',max:3,score,bv:`Tara ${tB} (${TARA_NAME[tB]})`,gv:`Tara ${tG} (${TARA_NAME[tG]})`,
+    pillCls:score===3?'pill-full':(score>0?'pill-mid':'pill-zero'),
+    pillTxt:`Score: ${score} / 3`,
+    steps:[
+      {t:'What is Tara?',body:'"Tara" means star. This Kuta measures the distance between the birth Nakshatras of the couple. The distance (1–27) is divided into groups of 9, producing a Tara number from 1 to 9.'},
+      {t:"Count the Groom's Tara",body:`Count from Groom's star (${b.name}, #${b.n}) to Bride's star (${g.name}, #${g.n}), including both ends: <b>${fwd}</b><br>
+        Tara for Groom = ((${fwd} − 1) mod 9) + 1 = <b>${tB}</b> → <b>${TARA_NAME[tB]}</b>`},
+      {t:"Count the Bride's Tara",body:`Count from Bride's star to Groom's star: <b>${bk}</b><br>
+        Tara for Bride = ((${bk} − 1) mod 9) + 1 = <b>${tG}</b> → <b>${TARA_NAME[tG]}</b>`},
+      {t:'Auspicious vs Inauspicious',body:`✅ Auspicious Taras (2, 4, 6, 8, 9): Sampat, Kshema, Sadhaka, Mitra, Parama Mitra<br>
+        ❌ Inauspicious Taras (1, 3, 5, 7): Janma, Vipat, Pratyari, Vadha<br><br>
+        Groom's Tara ${tB} (${TARA_NAME[tB]}) = <b>${bg?'Auspicious ✅':'Inauspicious ❌'}</b><br>
+        Bride's Tara ${tG} (${TARA_NAME[tG]}) = <b>${gg2?'Auspicious ✅':'Inauspicious ❌'}</b>`},
+      {t:'Scoring & Result',body:`Both auspicious = 3 | One auspicious = 1.5 | Both inauspicious = 0<br>Score = <b>${score} / 3</b>`}
+    ]};
+}
+
+function calcVashya(b,g){
+  const br = getRashi(b.n, b.pada), gr = getRashi(g.n, g.pada);
+  const bv = VASHYA_MAP[br], gv = VASHYA_MAP[gr];
+  let score, ruleResult;
+  if(bv===gv){score=2; ruleResult=`Same Vashya category (<b>${bv}</b>) — full 2 points!`;}
+  else if((bv==='Manava'&&gv==='Jalachara')||(bv==='Jalachara'&&gv==='Manava')){score=1; ruleResult='Manava + Jalachara — partial compatibility (1 point).';}
+  else {score=0; ruleResult='Different categories with no compatible link — score = 0.';}
+  return {name:'Vashya Kuta',what:'Mutual Influence',max:2,score,bv,gv,
+    pillCls:score===2?'pill-full':(score===1?'pill-mid':'pill-zero'),
+    pillTxt:`Score: ${score} / 2`,
+    steps:[
+      {t:'What is Vashya?',body:`Vashya means "control" or "influence". Each Rashi belongs to one of 5 groups:<br>
+        <b>Chatushpada</b> (four-legged) — Aries, Taurus, Sagittarius (first half), Capricorn (first half)<br>
+        <b>Manava</b> (human) — Gemini, Virgo, Libra, Aquarius, Sagittarius (second half)<br>
+        <b>Jalachara</b> (aquatic) — Cancer, Capricorn (second half), Pisces<br>
+        <b>Vanachara</b> (wild/forest) — Leo<br>
+        <b>Keeta</b> (insect/reptile) — Scorpio`},
+      {t:'Find Vashya category',body:`Groom → Rashi <b>${RASHI_NAME[br]}</b> → Vashya = <b>${bv}</b><br>Bride → Rashi <b>${RASHI_NAME[gr]}</b> → Vashya = <b>${gv}</b>`},
+      {t:'Scoring rule',body:`Same category → <b>2</b> | Manava + Jalachara (or reverse) → <b>1</b> | All others → <b>0</b>`},
+      {t:'Result',body:ruleResult}
+    ]};
+}
+
+function calcVarna(b,g){
+  const br = getRashi(b.n, b.pada), gr = getRashi(g.n, g.pada);
+  const bvn=VARNA_MAP[br], gvn=VARNA_MAP[gr];
+  const score=(VARNA_RANK[bvn]||1)>=(VARNA_RANK[gvn]||1)?1:0;
+  return {name:'Varna Kuta',what:'Spiritual Compatibility',max:1,score,bv:bvn,gv:gvn,
+    pillCls:score===1?'pill-full':'pill-zero',
+    pillTxt:score===1?'✅ 1 / 1':'❌ 0 / 1',
+    steps:[
+      {t:'What is Varna?',body:`Varna represents the spiritual development level. Each Rashi maps to one of four Varnas (in descending order):<br>
+        <b>Brahmin</b> (rank 4) — Cancer, Scorpio, Pisces<br>
+        <b>Kshatriya</b> (rank 3) — Aries, Leo, Sagittarius<br>
+        <b>Vaishya</b> (rank 2) — Taurus, Virgo, Capricorn<br>
+        <b>Shudra</b> (rank 1) — Gemini, Libra, Aquarius`},
+      {t:'Find each Varna',body:`Groom → Rashi <b>${RASHI_NAME[br]}</b> → Varna = <b>${bvn}</b> (rank ${VARNA_RANK[bvn]})<br>Bride → Rashi <b>${RASHI_NAME[gr]}</b> → Varna = <b>${gvn}</b> (rank ${VARNA_RANK[gvn]})`},
+      {t:'The rule',body:`For compatibility, the Groom's Varna rank must be <b>equal or higher</b> than the Bride's Varna rank.`},
+      {t:'Result',body:score===1
+        ? `${bvn} (rank ${VARNA_RANK[bvn]}) ≥ ${gvn} (rank ${VARNA_RANK[gvn]}) → <b>1 point ✅</b>`
+        : `${bvn} (rank ${VARNA_RANK[bvn]}) < ${gvn} (rank ${VARNA_RANK[gvn]}) → <b>0 points ❌</b>`}
+    ]};
+}
+
+function calcAll(){
+  const b=selBoy, g=selGirl;
+  results=[calcNadi(b,g),calcBhakoot(b,g),calcGana(b,g),calcGrahaMaitri(b,g),calcYoni(b,g),calcTara(b,g),calcVashya(b,g),calcVarna(b,g)];
+  total=results.reduce((s,r)=>s+r.score,0);
+}
+
+// ══════════════════════════════════════ RENDER SCREEN 2
+function renderS2(){
+  document.getElementById('r-boy').textContent   = selBoy.name;
+  document.getElementById('r-boy-m').textContent = `#${selBoy.n} · Pada ${selBoy.pada} · ${selBoy.nadi} Nadi`;
+  document.getElementById('r-girl').textContent  = selGirl.name;
+  document.getElementById('r-girl-m').textContent= `#${selGirl.n} · Pada ${selGirl.pada} · ${selGirl.nadi} Nadi`;
+
+  const list=document.getElementById('kutaList');
+  list.innerHTML='';
+  results.forEach((k,idx)=>{
+    const pct=k.score/k.max;
+    const cls=pct>=0.67?'full':(pct>=0.34?'mid':'zero');
+    const barW=Math.round(pct*100);
+    const stepsHtml=k.steps.map((s,i)=>`
+      <div class="step-row">
+        <div class="step-num">${i+1}</div>
+        <div class="step-text"><strong>${s.t}:</strong><br>${s.body}</div>
+      </div>`).join('');
+    const card=document.createElement('div');
+    card.className='kuta-card';
+    card.innerHTML=`
+      <div class="kuta-bar-wrap"><div class="kuta-bar bar-${cls}" style="width:${barW}%"></div></div>
+      <div class="kuta-top">
+        <div class="kuta-rank-badge">${idx+1}</div>
+        <div class="kuta-info">
+          <div class="kuta-title">${k.name}</div>
+          <div class="kuta-subtitle">${k.what}</div>
+        </div>
+        <div class="kuta-score-wrap">
+          <div class="kuta-score-num score-color-${cls}">${k.score}</div>
+          <div class="kuta-score-max">/ ${k.max}</div>
+        </div>
+      </div>
+      <div class="toggle-hint">Click to see step-by-step calculation <span class="arrow-icon">▼</span></div>
+      <div class="kuta-expand">
+        <div class="compare-row">
+          <div class="compare-box boy-c"><div class="c-label">👦 Groom</div><div class="c-val">${k.bv}</div></div>
+          <div class="compare-box girl-c"><div class="c-label">👧 Bride</div><div class="c-val">${k.gv}</div></div>
+        </div>
+        <div class="step-box">
+          <h4>📐 Step-by-step calculation</h4>
+          ${stepsHtml}
+        </div>
+        <div class="result-pill ${k.pillCls}">${k.pillTxt}</div>
+      </div>`;
+    card.onclick = ()=>card.classList.toggle('open');
+    list.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════ RENDER SCREEN 3
+function renderS3(){
+  const sc=Math.round(total*10)/10;
+  document.getElementById('bigScore').textContent=sc;
+  const pct=Math.round(sc/36*100);
+  setTimeout(()=>{
+    const f=document.getElementById('mFill');
+    f.style.width=pct+'%'; f.textContent=pct+'%';
+    f.style.background=sc>=27?'linear-gradient(90deg,#1A6B35,#2ecc71)':sc>=18?'linear-gradient(90deg,#D07010,#f39c12)':'linear-gradient(90deg,#7D1C1C,#e74c3c)';
+  },150);
+  const vd=document.getElementById('verdict');
+  if(sc>=27){vd.className='verdict v-great'; vd.innerHTML='🌟 Excellent compatibility! The match is considered very auspicious.';}
+  else if(sc>=18){vd.className='verdict v-ok'; vd.innerHTML='👍 Moderate compatibility. Consulting an experienced astrologer is recommended.';}
+  else{vd.className='verdict v-low'; vd.innerHTML='⚠️ Low compatibility score. A detailed horoscope analysis is strongly advised.';}
+  const tbody=document.getElementById('sumBody');
+  tbody.innerHTML='';
+  results.forEach(k=>{
+    const p=k.score/k.max;
+    const sc2cls=p>=0.67?'sc-g':(p>=0.34?'sc-m':'sc-r');
+    tbody.innerHTML+=`<tr>
+      <td>${k.name}</td>
+      <td><span class="badge badge-b">${k.bv}</span></td>
+      <td><span class="badge badge-g">${k.gv}</span></td>
+      <td>${k.max}</td>
+      <td class="sc ${sc2cls}">${k.score}</td>
+    </tr>`;
+  });
+  const tcls=sc>=27?'sc-g':(sc>=18?'sc-m':'sc-r');
+  tbody.innerHTML+=`<tr><td colspan="3" style="text-align:right;font-size:15px;">Total</td><td>36</td><td class="sc ${tcls}">${sc}</td></tr>`;
+}
+
+// ══════════════════════════════════════ NAVIGATION
+function goTo(n){
+  if(n>=2&&(!selBoy||!selGirl)) return;
+  if(n===2){calcAll(); renderS2();}
+  if(n===3) renderS3();
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.remove('active','done');
+    if(i<n) t.classList.add('done');
+    if(i===n) t.classList.add('active');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildGrid();
+</script>
+</body>
+</html>
